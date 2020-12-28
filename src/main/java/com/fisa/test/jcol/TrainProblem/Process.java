@@ -1,7 +1,6 @@
 package com.fisa.test.jcol.TrainProblem;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,20 +11,21 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 
-public class TrainsGraph {
+public class Process {
 
-	private Map<String, Map<String, Integer>> adj;// adjacency table, store the relationship of each vertex
-    private int v;//number of vertices
-    private Set<String> vertexes;//all vertex collections
+	private Map<String, Map<String, Integer>> adj;// Mapa de Adhiacentes 
+    private int v;//numero de vertices
+    private Set<String> vertexes;//todos los vertices existentes
     
     
-    public TrainsGraph() {
+    public Process() {
 		super();
 	}
 
-	public TrainsGraph(String str) {
+	public Process(String str) {
 		
         vertexes = new HashSet<String>();
         adj = new HashMap<String, Map<String,Integer>>();
@@ -53,10 +53,12 @@ public class TrainsGraph {
                 v++;
  
         }
-        System.out.println("fin");
+      
 	} 
 	
-	public int findDistOfPath(String[] vertexes) {
+	public int findDistOfPath(String vertex) {
+		
+        String[] vertexes = vertex.split("-");
         if (null == vertexes || vertexes.length <= 0) {
             return -1;
         }
@@ -75,8 +77,12 @@ public class TrainsGraph {
         return dist;
     }
 
-	public int findDistOfPath_(String [] vertices) {
+	public int findDistOfPath_(String vertex) {
 		
+		String[] vertices = vertex.split("-");
+        if (null == vertices || vertices.length <= 0) {
+            return -1;
+        }
 		String s = vertices[0];
         int dist = 0;
         int acum = 0;
@@ -98,7 +104,7 @@ public class TrainsGraph {
 	
 	public int findShortestDist(String s, String t) {
 		
-        Map<String, Vertex> parentMap = new HashMap<>(this.v);//store the vertex and distance closest to each vertex
+        Map<String, Vertex> parentMap = new HashMap<>(this.v);//almacenar el vértice y la distancia más cercana a cada vértice
         for (String vertex : vertexes) {
         	parentMap.put(vertex, new Vertex(s, Integer.MAX_VALUE));
         }
@@ -112,7 +118,6 @@ public class TrainsGraph {
         		return v1.dist - v2.dist;
              }
         });
-        
         
         
         pqueue.add(new Vertex(s, 0));
@@ -129,7 +134,7 @@ public class TrainsGraph {
             	
 	        	int dist = minVertex.dist + entry.getValue();
 	            if (null != parentMap.get(entry.getKey()) &&
-	            	dist < parentMap.get(entry.getKey()).dist) {//The distance from the starting vertex is smaller than the previous one. The previous vertex of the updated shortest path is the vertex just dequeued from the priority queue.
+	            	dist < parentMap.get(entry.getKey()).dist) {//La distancia desde el vértice inicial es menor que la anterior. El vértice anterior de la ruta más corta actualizada es el vértice que se acaba de quitar de la cola de prioridad.
 		            	 
 	            	     parentMap.get(entry.getKey()).dist = dist;
 		            	 parentMap.get(entry.getKey()).v = minVertex.v;
@@ -151,7 +156,7 @@ public class TrainsGraph {
             if (entry.getValue() != null
                     && entry.getValue().v.equals(s)
                     && entry.getValue().dist < dist){
-                                 String next = entry.getKey();//First find the vertex closest to the target vertex
+                                 String next = entry.getKey();//Primero se encuentra el vértice más cercano al vértice de destino
                 int curDist = entry.getValue().dist + findShortestDist(next , s);
                 if (curDist < dist){
                     dist = curDist;
@@ -186,7 +191,10 @@ public class TrainsGraph {
             for (Object o : path){
                 list.add(String.valueOf(o));
             }
-            int dist = findDistOfPath(list.toArray(new String[0]));
+            String b = list.stream()
+ 			           .map(n -> String.valueOf(n))
+			           .collect(Collectors.joining("-", "", ""));
+            int dist = findDistOfPath(b);
             if (dist < maxDist){
                 dists.add(dist);
                 count++;
@@ -218,24 +226,24 @@ public class TrainsGraph {
         if (index.equals(end) && prev != null){
             paths.add(stack.toArray());
             stack.pop();
-           System.out.println("find the end point" + index + ", get the path, go back one by one, check if the node "+index+" has other paths");
+           System.out.println("Buscando el final del punto: " + index + ", se obtiene la ruta retrocediendo uno por uno, se comprueba que el nodo: "+index+" tiene otros caminos");
         }else{
             Map<String, Integer> edgeMap = adj.get(index);
-                         System.out.println("The search node "+index+" in turn has "+ edgeMap);
+                         System.out.println("El nodo de búsqueda: "+index+" Tiene el/los nodo(s): "+ edgeMap);
             if (null != edgeMap && edgeMap.size() > 0) {
                 for (Map.Entry<String, Integer> entry : edgeMap.entrySet()) {
-                                         System.out.println("search node"+index+" post node" + entry.getKey());
+                                         System.out.println("Nodo de búsqueda: "+index+" Post nodo:" + entry.getKey());
                     if (!stack.contains(entry.getKey()) || !visited.contains(entry.getKey())){
-//                    if (!visited.contains(entry.getKey())){
+
                         dfsPath(start, entry.getKey(), end , index , stack , paths , visited);
                     }
                 }
                 visited.add(stack.pop());
                 if (stack.size()>0){
-                        System.out.println("node " + index +" search is completed, go "
-                        		+ "back one bit and check if there is another path at the node " + index + "");
+                        System.out.println("Nodo: " + index +" La búsqueda está completa."
+                        		+ "Se retrocede un punto, y se comprueba si hay otra ruta en el nodo: " + index + "");
                 } else{
-                        System.out.println("End of loop, no other paths!");
+                        System.out.println("Fin de la iteración no existe otras rutas:");
                 }
             }
         }
@@ -249,13 +257,5 @@ public class TrainsGraph {
         System.out.println(sb);
     }
 
-	private class Vertex{
-        public String v;
-        public int dist;//distance of start vertex and v
-        public Vertex(String v, int dist) {
-            this.v = v;
-            this.dist = dist;
-        }
-    }
 
 }

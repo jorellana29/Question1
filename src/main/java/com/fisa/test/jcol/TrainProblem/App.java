@@ -1,73 +1,119 @@
 package com.fisa.test.jcol.TrainProblem;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
+import com.fisa.test.jcol.util.Reflection;
+import com.fisa.test.jcol.util.Utils;
 
-/**
- * Hello world!
- *
- */
 public class App 
 {
-	
-    public static void main( String[] args )
+
+    @SuppressWarnings("resource")
+	public static void main( String[] args )
     {
-    	TrainsGraph graph;
-    	String str = "AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7";
-    	//String str = readFromFile("src/main/resources/input.txt");
-        graph = new TrainsGraph(str);
-        
-        //Test1
-        
-        //String path = "A-B-P";
-        //int result = graph.findDistOfPath(path.split("-"));
-        //System.out.println(result);
-        //Assert.assertEquals(9, result);
-        
-        //int dist = graph.findShortestDist("A", "C");
-        //System.out.println(dist);
+    	try {
+			
+    		String opt = "";
+    		Scanner teclado = new Scanner(System.in);
+    		Scanner entrada = new Scanner(System.in);
+    	    String opc = "S";
+    	    boolean seguir = true;
+    		
+	    		System.out.println("********************* PROBLEM TRAINS *********************\n");
+	        do{
+	        	
+	        	if (opc.equals("s") || opc.equals("S")) {
+		    		System.out.println("Escoja opción de Pregunta [1 al 10]: ");
+		    		opt = teclado.nextLine();    		
+		    		
+		    		while (true) {
+		    			if(!validInput(opt)) {
+		    				
+		    				System.out.println("Entrada Inválida!! ");
+		    				System.out.println("Escoja opción de Pregunta [1 al 10]: ");
+				    		opt = teclado.nextLine();  
+		    			}else
+		                    break;
+					}
+		    		
+		        	String str = "AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7";
+		
+		        	Object[] obj = null;
+		            
+		            Reflection ref = new Reflection();
+		            int opcion = Integer.parseInt(opt);
+		            String data[] = ref.getOpcionMenu(opcion).split("\\,");
+		            
+		             switch (data.length) {
+		    		 case 3:
+		    			  obj = new Object[]{data[2]};
+		    			break;
+		    			
+		    		 case 4:
+		    			 obj = new Object[]{data[2],data[3]};
+		    			break;
+		    			
+		    		 case 5:
+		    			 obj = new Object[]{data[2],data[3], Integer.parseInt(data[4])};
+		    			break;
+		
+		    		default:
+		    			System.out.println("Opción no permitida!!");		    			
+		    			return;
+		    		}
+		            
+		             Class<?> params[] = new Class[obj.length];
+		             for (int i = 0; i < obj.length; i++) {
+		                 if (obj[i] instanceof Integer) {
+		                     params[i] = Integer.TYPE;
+		                 } else if (obj[i] instanceof String) {
+		                     params[i] = String.class;
+		                 }
+		             }
+		            
+		             String messageClass = data[1];					
+		    	     List<String> list = Arrays.asList(messageClass.split("\\."));
+		    	     String methodName = list.get(list.size() -1);
+		    	     String className = messageClass.replace("." + methodName, "");
+		             
+		             
+		             Class<?> cls = Class.forName(className);
+		             Object classInstance = cls.getConstructor(new Class[]{ String.class }).newInstance(str);
+		             Method myMethod = cls.getDeclaredMethod(methodName, params);
+		             int result =  (int) myMethod.invoke(classInstance, obj);
+		             if(result > 0)
+		             	System.out.println(data[0] + ": " + result);
+		             else
+		            	 System.out.println("No existe ruta");
+		             
+		             System.out.print("¿Desea continuar? [S/N]");
+				     opc = entrada.next();
 
-        //tEST 7
-        
-        //int count = graph.countPathByStop("A", "C" , 4);
-        //System.out.println("test6: A->C, count:" + count);
-        
-        String path = "A-E-D";
-        int result = graph.findDistOfPath(path.split("-"));
-        System.out.println(result);
-        
-        //int count = graph.countPathByDist("C", "C" , 30);
-        //System.out.println("test10:C->C,count:"+count);
-
+	        	}else {
+	        		seguir=false;
+				}
+             
+    		}while (seguir);
+             
+		} catch (Exception e) {
+			System.out.println(e.getCause());
+		}
+         
     }
     
-    public String readFromFile(String fileName){
-        StringBuilder sb = new StringBuilder();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(fileName));
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-        }catch (FileNotFoundException e){
-            System.out.println("readFromFile file not found");
-        }catch (IOException e){
-            System.out.println("readFromFile io exception,"+e.getMessage());
-        }finally {
-            if (reader != null){
-                try {
-                    reader.close();
-                }catch (IOException e){
-                    System.out.println("reader close exception,"+e.getMessage());
-                }
-            }
-        }
-        return sb.toString();
+    public static boolean validInput(String value) {
+    	int z = 0;
+    	if(Utils.isNumeric(value)) {
+    		z = Integer.parseInt(value);
+    		if(z >= 1 && z <= 10) 
+    			return true;
+    		else
+    			return false;
+    	}else
+    		return false;
     }
-
     
-
+    
 }

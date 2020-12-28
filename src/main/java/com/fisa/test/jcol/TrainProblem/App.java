@@ -89,7 +89,7 @@ public class App
 		            	 System.out.println("No existe ruta");
 		             
 		             System.out.print("¿Desea continuar? [S/N]");
-				     opc = entrada.next();
+				     opc = teclado.next();
 
 	        	}else {
 	        		seguir=false;

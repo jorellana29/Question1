@@ -29,7 +29,7 @@ public class App
 		    		opt = teclado.nextLine();    		
 		    		
 		    		while (true) {
-		    			if(!validInput(opt)) {
+		    			if(!Utils.validInput(opt)) {
 		    				
 		    				System.out.println("Entrada Inválida!! ");
 		    				System.out.println("Escoja opción de Pregunta [1 al 10]: ");
@@ -103,17 +103,7 @@ public class App
          
     }
     
-    public static boolean validInput(String value) {
-    	int z = 0;
-    	if(Utils.isNumeric(value)) {
-    		z = Integer.parseInt(value);
-    		if(z >= 1 && z <= 10) 
-    			return true;
-    		else
-    			return false;
-    	}else
-    		return false;
-    }
+    
     
     
 }

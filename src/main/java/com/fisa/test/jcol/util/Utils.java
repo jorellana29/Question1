@@ -31,6 +31,7 @@ public class Utils {
         }
         return sb.toString();
     }
+	
 	public static boolean isNumeric(String cadena){
 		try {
 			Integer.parseInt(cadena);
@@ -39,5 +40,17 @@ public class Utils {
 			return false;
 		}
 	}
+	
+	public static boolean validInput(String value) {
+    	int z = 0;
+    	if(Utils.isNumeric(value)) {
+    		z = Integer.parseInt(value);
+    		if(z >= 1 && z <= 10) 
+    			return true;
+    		else
+    			return false;
+    	}else
+    		return false;
+    }
 
 }
